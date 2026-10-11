@@ -125,7 +125,7 @@ if st.session_state.etapa == 1:
     incluir_materiais = st.checkbox("🧹 Incluir regra de Fornecimento Próprio de Materiais/EPIs (Cláusula 1ª, § 4º)", value=False, help="Define que a sua empresa arca com todos os custos de vassouras, detergentes e EPIs.")
     incluir_trabalhista = st.checkbox("🛡️ Incluir blindagem contra Vínculo Trabalhista (Cláusula 4ª)", value=False, help="Se algum dos seus funcionários processar a clínica, a sua empresa assume os custos.")
     incluir_renovacao = st.checkbox("🔄 Incluir regra de Renovação Automática", value=False, help="O contrato renova-se sozinho ao fim de 12 meses.")
-    incluir_sabados = st.checkbox("📅 Incluir trabalho aos Sábados (Cláusula 2ª)", value=True, help="Define que a limpeza ocorre de segunda a sábado. Desmarque se for apenas de segunda a sexta.") # Mantive True por ser o seu padrão
+    incluir_sabados = st.checkbox("📅 Incluir trabalho aos Sábados (Cláusula 2ª)", value=False, help="Define que a limpeza ocorre de segunda a sábado. Desmarque se for apenas de segunda a sexta.") # Mantive True por ser o seu padrão
     incluir_emergencia = st.checkbox("🚨 Incluir regras para chamados de Emergência/Orçamento Extra", value=False, help="Obriga a clínica a aprovar orçamentos por escrito antes de limpezas extras.")
 
     st.write("---")
