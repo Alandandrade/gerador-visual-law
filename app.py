@@ -10,18 +10,34 @@ try:
 except:
     pass
 
-# --- Inicialização Obrigatória para os Campos de Moeda e Etapa ---
+# --- INICIALIZAÇÃO DA MEMÓRIA (SESSION STATE) ---
+if "etapa" not in st.session_state:
+    st.session_state.etapa = 1
+
+# Inicialização dos campos de moeda para evitar erros
 if 'valor_mensal' not in st.session_state:
     st.session_state.valor_mensal = '1.000,00'
 if 'multa_maxima' not in st.session_state:
     st.session_state.multa_maxima = '1.000,00'
-if "etapa" not in st.session_state:
-    st.session_state.etapa = 1
+
+# Inicialização fixa dos dados da CONTRATADA (A sua empresa)
+# Se já estiverem na memória, não apaga. Se for a primeira vez, ficam em branco para preencher.
+if 'nome_contratada' not in st.session_state:
+    st.session_state.nome_contratada = ''
+if 'cnpj_contratada' not in st.session_state:
+    st.session_state.cnpj_contratada = ''
+if 'endereco_contratada' not in st.session_state:
+    st.session_state.endereco_contratada = ''
+if 'repr_contratada' not in st.session_state:
+    st.session_state.repr_contratada = ''
+if 'rg_repr_contratada' not in st.session_state:
+    st.session_state.rg_repr_contratada = ''
+if 'cpf_repr_contratada' not in st.session_state:
+    st.session_state.cpf_repr_contratada = ''
 
 # --- Função de Formatação Automática de Moeda (Callback) ---
 def formatar_moeda(chave):
     valor_digitado = str(st.session_state[chave])
-    # Remove possíveis R$, espaços em branco e pontos antigos
     valor_limpo = valor_digitado.upper().replace('R$', '').replace(' ', '').replace('.', '')
     
     if not valor_limpo:
@@ -31,7 +47,6 @@ def formatar_moeda(chave):
     if ',' in valor_limpo:
         partes = valor_limpo.split(',')
         reais = partes[0] if partes[0] else '0'
-        # Mantém apenas os 2 primeiros cêntimos
         centavos = partes[1][:2].ljust(2, '0')
     else:
         reais = valor_limpo
@@ -39,7 +54,6 @@ def formatar_moeda(chave):
         
     try:
         reais_int = int(reais)
-        # Aplica a formatação brasileira (pontos nos milhares)
         reais_formatado = f"{reais_int:,}".replace(',', '.')
         st.session_state[chave] = f"{reais_formatado},{centavos}"
     except ValueError:
@@ -57,7 +71,8 @@ if st.session_state.etapa == 1:
     st.subheader("1. Qualificação das Partes")
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("#### Dados do Contratante")
+        st.markdown("#### Dados do Contratante (Cliente)")
+        # Estes campos começam sempre vazios quando se faz um novo contrato
         nome_contratante = st.text_input("Nome/Razão Social (Contratante)", value=st.session_state.get('nome_contratante', ''))
         cnpj_contratante = st.text_input("CNPJ (Contratante)", value=st.session_state.get('cnpj_contratante', ''))
         endereco_contratante = st.text_input("Endereço Sede (Contratante)", value=st.session_state.get('endereco_contratante', ''))
@@ -66,13 +81,14 @@ if st.session_state.etapa == 1:
         cpf_repr_contratante = st.text_input("CPF do Representante", value=st.session_state.get('cpf_repr_contratante', ''))
 
     with col2:
-        st.markdown("#### Dados da Contratada")
-        nome_contratada = st.text_input("Nome/Razão Social (Contratada)", value=st.session_state.get('nome_contratada', ''))
-        cnpj_contratada = st.text_input("CNPJ (Contratada)", value=st.session_state.get('cnpj_contratada', ''))
-        endereco_contratada = st.text_input("Endereço Sede (Contratada)", value=st.session_state.get('endereco_contratada', ''))
-        repr_contratada = st.text_input("Nome do Representante (Contratada)", value=st.session_state.get('repr_contratada', ''))
-        rg_repr_contratada = st.text_input("RG do Representante (Contratada)", value=st.session_state.get('rg_repr_contratada', ''))
-        cpf_repr_contratada = st.text_input("CPF do Representante (Contratada)", value=st.session_state.get('cpf_repr_contratada', ''))
+        st.markdown("#### Dados da Contratada (Sua Empresa)")
+        # Estes campos puxam sempre a informação da memória, para nunca perder o que digitou por último
+        nome_contratada = st.text_input("Nome/Razão Social (Contratada)", value=st.session_state.nome_contratada)
+        cnpj_contratada = st.text_input("CNPJ (Contratada)", value=st.session_state.cnpj_contratada)
+        endereco_contratada = st.text_input("Endereço Sede (Contratada)", value=st.session_state.endereco_contratada)
+        repr_contratada = st.text_input("Nome do Representante (Contratada)", value=st.session_state.repr_contratada)
+        rg_repr_contratada = st.text_input("RG do Representante (Contratada)", value=st.session_state.rg_repr_contratada)
+        cpf_repr_contratada = st.text_input("CPF do Representante (Contratada)", value=st.session_state.cpf_repr_contratada)
 
     st.write("---")
     
@@ -100,19 +116,22 @@ if st.session_state.etapa == 1:
     st.subheader("3. Personalização das Cláusulas")
     st.write("Selecione quais regras farão parte deste contrato:")
     
-    incluir_sigilo = st.checkbox("🔒 Incluir cláusula de Confidencialidade (NDA)", value=st.session_state.get('incluir_sigilo', False), help="Garante que tudo o que for visto ou ouvido sobre a clínica e pacientes é confidencial.")
-    incluir_residuos = st.checkbox("☣️ Incluir normas de descarte de resíduos biológicos", value=st.session_state.get('incluir_residuos', False), help="Proíbe a equipa de limpeza de manipular lixo hospitalar e agulhas.")
-    incluir_multas = st.checkbox("⚖️ Incluir penalidades gradativas (RNC)", value=st.session_state.get('incluir_multas', False), help="Estabelece um sistema justo de advertências e multas progressivas em caso de falhas leves.")
-    incluir_nao_exclusividade = st.checkbox("🤝 Incluir declaração de Não Exclusividade", value=st.session_state.get('incluir_nao_exclusividade', False), help="Deixa claro que a sua empresa de limpeza é livre para atender outros clientes.")
-    incluir_materiais = st.checkbox("🧹 Incluir regra de Fornecimento Próprio de Materiais/EPIs (Cláusula 1ª, § 4º)", value=st.session_state.get('incluir_materiais', False), help="Define que a sua empresa arca com todos os custos de vassouras, detergentes e EPIs.")
-    incluir_trabalhista = st.checkbox("🛡️ Incluir blindagem contra Vínculo Trabalhista (Cláusula 4ª)", value=st.session_state.get('incluir_trabalhista', False), help="Se algum dos seus funcionários processar a clínica, a sua empresa assume os custos.")
-    incluir_renovacao = st.checkbox("🔄 Incluir regra de Renovação Automática", value=st.session_state.get('incluir_renovacao', False), help="O contrato renova-se sozinho ao fim de 12 meses.")
-    incluir_sabados = st.checkbox("📅 Incluir trabalho aos Sábados (Cláusula 2ª)", value=st.session_state.get('incluir_sabados', True), help="Define que a limpeza ocorre de segunda a sábado. Desmarque se for apenas de segunda a sexta.")
-    incluir_emergencia = st.checkbox("🚨 Incluir regras para chamados de Emergência/Orçamento Extra", value=st.session_state.get('incluir_emergencia', False), help="Obriga a clínica a aprovar orçamentos por escrito antes de limpezas extras.")
+    # As checkboxes agora forçam o valor False (desmarcado) sempre que a Tela 1 carrega de fresco, 
+    # exceto aquelas que você queira que sejam padrão (como o sábado).
+    incluir_sigilo = st.checkbox("🔒 Incluir cláusula de Confidencialidade (NDA)", value=False, help="Garante que tudo o que for visto ou ouvido sobre a clínica e pacientes é confidencial.")
+    incluir_residuos = st.checkbox("☣️ Incluir normas de descarte de resíduos biológicos", value=False, help="Proíbe a equipa de limpeza de manipular lixo hospitalar e agulhas.")
+    incluir_multas = st.checkbox("⚖️ Incluir penalidades gradativas (RNC)", value=False, help="Estabelece um sistema justo de advertências e multas progressivas em caso de falhas leves.")
+    incluir_nao_exclusividade = st.checkbox("🤝 Incluir declaração de Não Exclusividade", value=False, help="Deixa claro que a sua empresa de limpeza é livre para atender outros clientes.")
+    incluir_materiais = st.checkbox("🧹 Incluir regra de Fornecimento Próprio de Materiais/EPIs (Cláusula 1ª, § 4º)", value=False, help="Define que a sua empresa arca com todos os custos de vassouras, detergentes e EPIs.")
+    incluir_trabalhista = st.checkbox("🛡️ Incluir blindagem contra Vínculo Trabalhista (Cláusula 4ª)", value=False, help="Se algum dos seus funcionários processar a clínica, a sua empresa assume os custos.")
+    incluir_renovacao = st.checkbox("🔄 Incluir regra de Renovação Automática", value=False, help="O contrato renova-se sozinho ao fim de 12 meses.")
+    incluir_sabados = st.checkbox("📅 Incluir trabalho aos Sábados (Cláusula 2ª)", value=True, help="Define que a limpeza ocorre de segunda a sábado. Desmarque se for apenas de segunda a sexta.") # Mantive True por ser o seu padrão
+    incluir_emergencia = st.checkbox("🚨 Incluir regras para chamados de Emergência/Orçamento Extra", value=False, help="Obriga a clínica a aprovar orçamentos por escrito antes de limpezas extras.")
 
     st.write("---")
     
     if st.button("Próximo Passo: Revisar ➡️", type="primary"):
+        # Guarda os dados do Contratante (Cliente)
         st.session_state.nome_contratante = nome_contratante
         st.session_state.cnpj_contratante = cnpj_contratante
         st.session_state.endereco_contratante = endereco_contratante
@@ -120,6 +139,7 @@ if st.session_state.etapa == 1:
         st.session_state.rg_repr_contratante = rg_repr_contratante
         st.session_state.cpf_repr_contratante = cpf_repr_contratante
         
+        # Guarda os dados da Contratada para não os perder NUNCA
         st.session_state.nome_contratada = nome_contratada
         st.session_state.cnpj_contratada = cnpj_contratada
         st.session_state.endereco_contratada = endereco_contratada
@@ -228,7 +248,6 @@ if st.session_state.etapa == 2:
 if st.session_state.etapa == 3:
     st.title("🎉 Seu Contrato está Pronto!")
     
-    # Prepara o valor para calcular as percentagens
     valor_texto = st.session_state.valor_mensal.replace('.', '').replace(',', '.')
     
     try:
@@ -242,7 +261,6 @@ if st.session_state.etapa == 3:
         multa_10_formatada = "[Erro no cálculo]"
         multa_30_formatada = "[Erro no cálculo]"
 
-    # Mapeamento de todas as variáveis que vão para o Word
     contexto = {
         'nome_contratante': st.session_state.nome_contratante,
         'cnpj_contratante': st.session_state.cnpj_contratante,
@@ -302,7 +320,20 @@ if st.session_state.etapa == 3:
         st.error(f"Erro ao gerar o documento. Detalhe do erro: {e}")
         
     st.write("---")
+    
+    # --- BOTÃO NOVO CONTRATO ATUALIZADO ---
     if st.button("Fazer um Novo Contrato"):
+        # Apaga todos os dados da memória, EXCETO os dados da sua empresa (Contratada) e os campos de moeda limpos
+        chaves_para_apagar = []
         for key in list(st.session_state.keys()):
+            if "contratada" not in key and key not in ["valor_mensal", "multa_maxima"]:
+                chaves_para_apagar.append(key)
+                
+        for key in chaves_para_apagar:
             del st.session_state[key]
+            
+        # Zera os valores de dinheiro para um novo cliente, mas mantém o formato para não dar erro
+        st.session_state.valor_mensal = '0,00'
+        st.session_state.multa_maxima = '0,00'
+        
         st.rerun()
