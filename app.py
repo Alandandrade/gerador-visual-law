@@ -10,7 +10,7 @@ try:
 except:
     pass
 
-st.set_page_config(page_title="GERADOR DE COTRATOS VISUAL LAW", layout="wide")
+st.set_page_config(page_title="GERADOR DE CONTRATOS VISUAL LAW", layout="wide")
 
 # Estilo global para garantir que os botões tenham apenas a largura do próprio texto
 st.markdown("""
@@ -174,7 +174,7 @@ if st.session_state.etapa == 1:
         st.text_input("Cidade do Foro", key='foro_cidade')
         st.checkbox("Incluir 'Não Exclusividade' no quadro 1", key='check_nao_exclusividade')
 
-    st.markdown("#### ESCOPO DAS ATIVIDADES)")
+    st.markdown("#### ESCOPO DAS ATIVIDADES")
     st.text_area("Descreva os ambientes (Ex: Recepção, 2 banheiros, copa, sala de espera e 3 consultórios). Deixe em branco se não quiser esta cláusula no contrato.", 
                  key="ambientes_limpeza", height=68)
 
@@ -228,7 +228,7 @@ if st.session_state.etapa == 1:
                 st.session_state.editando_idx = None
                 st.rerun()
 
-    with st.expander("➕ NOVA CLÁUSULA)"):
+    with st.expander("➕ NOVA CLÁUSULA"):
         ntit = st.text_input("Título da Nova Regra")
         ncat = st.selectbox("Categoria Visual", ["Objeto", "Autonomia", "Custos", "Sigilo", "Saude", "Dinheiro", "Prazo", "Atencao"])
         njur = st.text_area("Texto Jurídico", placeholder="Ex: O contratante obriga-se a...")
@@ -325,19 +325,19 @@ if st.session_state.etapa == 2:
                 <tr class="tr-titulo" style="background-color: {cores['declaracoes']}; color: white;" id="sec-atencao"><td colspan="3">ANTES DE COMEÇAR | DECLARAÇÕES INICIAIS</td></tr>
                 
                 <tr>
-                    <td class="col-par" style="background-color: #fcf4e3;">§ 1º</td>
+                    <td class="col-par" style="background-color: {cores['declaracoes']}; color: white;">§ 1º</td>
                     <td class="col-jur" style="background-color: white;">Na data deste documento, é firmado o presente acordo de prestação de serviços entre as partes acima qualificadas, que declaram agir de livre e espontânea vontade, sem qualquer vício de consentimento.</td>
                     <td class="col-vis" style="background-color: white;">Nós dois escolhemos fechar este negócio. Ninguém está sendo forçado, pressionado ou enganado para assinar este documento.</td>
                 </tr>
 
                 <tr>
-                    <td class="col-par" style="background-color: #fcf4e3;">§ 2º</td>
+                    <td class="col-par" style="background-color: {cores['declaracoes']}; color: white;">§ 2º</td>
                     <td class="col-jur" style="background-color: white;">A Contratada declara ter sido devidamente esclarecida acerca da modalidade de sua contratação, estando ciente e aceitando expressamente a ausência de vínculo empregatício nesta relação jurídica.</td>
                     <td class="col-vis" style="background-color: white;">Você atuará de forma independente. Isso significa que você é um(a) <b>prestador(a) de serviços</b>, e não um funcionário (CLT) da contratante.</td>
                 </tr>
                 
                 <tr>
-                    <td class="col-par" style="background-color: #f4f5f8;">§ 3º</td>
+                    <td class="col-par" style="background-color: {cores['declaracoes']}; color: white;">§ 3º</td>
                     <td class="col-jur" style="background-color: white;">As partes declaram que dialogaram e acertaram a forma de prestação do serviço e a sua justa remuneração. As regras e condições estipuladas neste instrumento refletem exatamente o que foi combinado, sendo válidas como a real e expressa vontade das partes.</td>
                     <td class="col-vis" style="background-color: white;">Nós conversamos previamente sobre como o serviço será feito e qual será o valor pago. Tudo o que está escrito nas regras abaixo é exatamente a nossa vontade e o que combinamos.</td>
                 </tr>
@@ -350,7 +350,7 @@ if st.session_state.etapa == 2:
             html_clausulas += f"""
                 <tr class="tr-titulo" style="background-color: {cores['objeto']}; color: white;" id="sec-objeto"><td colspan="3">CLÁUSULA {num_c}ª | O QUE SERÁ FEITO</td></tr>
                 <tr>
-                    <td class="col-par" style="background-color: #f4f5f8;">Caput</td>
+                    <td class="col-par" style="background-color: {cores['objeto']}; color: white;">Caput</td>
                     <td class="col-jur">A CONTRATADA prestará a CONTRATANTE a prestação de serviço referente a limpeza e a higienização das instalações do local, englobando especificamente: {ambientes_limpeza}</td>
                     <td class="col-vis">Você vai limpar e higienizar os seguintes ambientes: {ambientes_limpeza}</td>
                 </tr>
@@ -361,7 +361,7 @@ if st.session_state.etapa == 2:
             html_clausulas += f"""
                 <tr class="tr-titulo" style="background-color: {cores['prazo']}; color: white;" id="sec-prazo"><td colspan="3">CLÁUSULA {num_c}ª | QUANDO SERÁ FEITO</td></tr>
                 <tr>
-                    <td class="col-par" style="background-color: #f4f5f8;">Caput</td>
+                    <td class="col-par" style="background-color: {cores['prazo']}; color: white;">Caput</td>
                     <td class="col-jur">Os serviços de que trata a Cláusula Primeira serão prestados conforme pactuado ({dias_servico}), cabendo à CONTRATADA organizar sua escala interna para higienização prévia aos atendimentos.</td>
                     <td class="col-vis">O serviço é feito nos dias combinados ({dias_servico}). Você organiza sua escala para que o local esteja pronto antes de abrir.</td>
                 </tr>
@@ -375,7 +375,7 @@ if st.session_state.etapa == 2:
             if valor_mensal not in ['', '0,00']:
                 html_clausulas += f"""
                 <tr>
-                    <td class="col-par" style="background-color: #f4f5f8;">Caput</td>
+                    <td class="col-par" style="background-color: {cores['dinheiro']}; color: white;">Caput</td>
                     <td class="col-jur">A CONTRATANTE pagará à CONTRATADA o valor mensal de R$ {valor_mensal}, a ser creditado em conta bancária de titularidade jurídica da CONTRATADA.</td>
                     <td class="col-vis">O cliente paga R$ {valor_mensal} por mês, creditado exclusivamente na conta do CNPJ da sua empresa.</td>
                 </tr>
@@ -384,7 +384,7 @@ if st.session_state.etapa == 2:
                 num_par = "§ 1º" if valor_mensal not in ['', '0,00'] else "Caput"
                 html_clausulas += f"""
                 <tr>
-                    <td class="col-par" style="background-color: #fdf6e3;">{num_par}</td>
+                    <td class="col-par" style="background-color: {cores['dinheiro']}; color: white;">{num_par}</td>
                     <td class="col-jur">O pagamento será realizado mensalmente até o dia {dia_pagamento} do mês subsequente, mediante apresentação de Nota Fiscal acompanhada das certidões de regularidade (quando aplicável).</td>
                     <td class="col-vis">O pagamento sai até o dia {dia_pagamento} do mês seguinte. Antes, você entrega a Nota Fiscal e documentos exigidos.</td>
                 </tr>
@@ -394,7 +394,7 @@ if st.session_state.etapa == 2:
         for c in st.session_state.banco_clausulas:
             if c.get('ativa', False):
                 cat = c.get('categoria', 'atencao')
-                cor = cores.get(cat, cores['atencao'])
+                cor = cores.get(cat.lower(), cores['atencao'])
                 
                 jur_text = c['juridico']
                 if "10%" in jur_text and "30%" in jur_text and multa_maxima not in ['', '0,00']:
@@ -403,7 +403,7 @@ if st.session_state.etapa == 2:
                 html_clausulas += f"""
                 <tr class="tr-titulo" style="background-color: {cor}; color: white;" id="sec-{cat}"><td colspan="3">CLÁUSULA {num_c}ª | {c['titulo'].upper()}</td></tr>
                 <tr>
-                    <td class="col-par" style="background-color: #f4f5f8;">Caput</td>
+                    <td class="col-par" style="background-color: {cor}; color: white;">Caput</td>
                     <td class="col-jur">{jur_text}</td>
                     <td class="col-vis">{c['visual']}</td>
                 </tr>
@@ -414,7 +414,7 @@ if st.session_state.etapa == 2:
             html_clausulas += f"""
                 <tr class="tr-titulo" style="background-color: {cores['prazo']}; color: white;"><td colspan="3">CLÁUSULA {num_c}ª | CANCELAMENTO</td></tr>
                 <tr>
-                    <td class="col-par" style="background-color: #f4f5f8;">Caput</td>
+                    <td class="col-par" style="background-color: {cores['prazo']}; color: white;">Caput</td>
                     <td class="col-jur">O contrato poderá ser rescindido sem justa causa mediante aviso prévio por escrito com antecedência de {dias_cancelamento} dias, sem incidência de multa.</td>
                     <td class="col-vis">Qualquer um pode cancelar avisando por escrito com {dias_cancelamento} dias de antecedência. Não há multa nesse caso.</td>
                 </tr>
@@ -440,7 +440,7 @@ if st.session_state.etapa == 2:
 
             html_clausulas += f"""
                 <tr>
-                    <td class="col-par" style="background-color: #f4f5f8;">Caput</td>
+                    <td class="col-par" style="background-color: {cores['prazo']}; color: white;">Caput</td>
                     <td class="col-jur">{txt_jur}.</td>
                     <td class="col-vis">{txt_vis}.</td>
                 </tr>
@@ -455,7 +455,7 @@ if st.session_state.etapa == 2:
         <div class="header-section" style="margin-top: 20px;">FORO | ONDE RESOLVER DISPUTAS</div>
         <table class="tab-clausulas" style="margin-bottom: 20px;">
             <tr>
-                <td class="col-par" style="width: 10%; background-color: #f4f5f8;">Foro</td>
+                <td class="col-par" style="width: 10%; background-color: {cores['atencao']}; color: white;">Foro</td>
                 <td class="col-jur" style="width: 45%;">Fica eleito o foro da Comarca de {foro_cidade} para dirimir eventuais litígios.</td>
                 <td class="col-vis" style="width: 45%;">Se surgir conflito, o caso vai para a Justiça de {foro_cidade}.</td>
             </tr>
@@ -558,15 +558,10 @@ if st.session_state.etapa == 2:
                 }}
 
                 /* ====== CORREÇÃO PRINCIPAL: elimina os vazios enormes ====== */
-                /* Permite que a tabela QUEBRE naturalmente entre linhas,
-                   evitando que o bloco inteiro seja empurrado para a próxima página. */
                 table {{ page-break-inside: auto !important; }}
-                /* Cada linha (cláusula) permanece íntegra, mas a tabela pode continuar na página seguinte. */
                 tr, td, th {{ page-break-inside: avoid !important; }}
-                /* Títulos nunca ficam sozinhos no fim da página (sem o conteúdo). */
                 .tr-titulo {{ page-break-after: avoid !important; }}
                 .header-section {{ page-break-after: avoid !important; }}
-                /* Blocos críticos que devem permanecer juntos. */
                 .bloco-assinatura, .box-importante {{ page-break-inside: avoid !important; }}
 
                 .menu-cores td {{ pointer-events: none; }}
