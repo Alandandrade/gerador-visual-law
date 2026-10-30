@@ -183,18 +183,21 @@ if st.session_state.etapa == 1:
     st.write("Selecione quais regras extras farão parte do contrato. Adicione, edite ou exclua cláusulas para usar no futuro.")
     
     for i, clausula in enumerate(st.session_state.banco_clausulas):
-        c_check, c_btn_edit, c_btn_del = st.columns([0.75, 0.12, 0.13])
+        # LAYOUT RESPONSIVO: Checkbox em uma coluna e botões agrupados em outra (lado a lado)
+        c_check, c_btns = st.columns([0.7, 0.3])
         with c_check:
             is_checked = st.checkbox(f"📄 {clausula['titulo']}", value=clausula['ativa'], key=f"chk_{i}")
             st.session_state.banco_clausulas[i]['ativa'] = is_checked
-        with c_btn_edit:
-            if st.button("✏️ Editar", key=f"btn_edit_{i}"):
-                st.session_state.editando_idx = i
-                st.rerun()
-        with c_btn_del:
-            if st.button("❌ Excluir", key=f"btn_del_{i}"):
-                st.session_state.banco_clausulas.pop(i)
-                st.rerun()
+        with c_btns:
+            b_edit, b_del = st.columns(2)
+            with b_edit:
+                if st.button("✏️ Editar", key=f"btn_edit_{i}", use_container_width=True):
+                    st.session_state.editando_idx = i
+                    st.rerun()
+            with b_del:
+                if st.button("❌ Excluir", key=f"btn_del_{i}", use_container_width=True):
+                    st.session_state.banco_clausulas.pop(i)
+                    st.rerun()
 
     if st.session_state.editando_idx is not None:
         idx = st.session_state.editando_idx
@@ -499,10 +502,21 @@ if st.session_state.etapa == 2:
             .btn-imprimir:hover {{ background-color: #ff3333; }}
             .dica {{ font-size: 11px; color: #666; max-width: 65%; }}
             
+            /* WRAPPER PARA O A4 */
+            .page-wrapper {{
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                overflow: hidden;
+            }}
+
             .folha-contrato {{ 
-                background-color: white; color: black; padding: 30px 40px; margin-bottom: 20px;
-                width: 100%; max-width: 800px; box-sizing: border-box; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+                background-color: white; color: black; padding: 30px 40px 50px 40px; margin-bottom: 20px;
+                width: 794px; /* Largura A4 em pixels */
+                min-height: 1123px; /* Altura A4 em pixels */
+                box-sizing: border-box; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
                 font-size: 11px; line-height: 1.4; 
+                transform-origin: top left;
             }}
             
             .logo-img {{ max-width: 220px; max-height: 100px; display: block; margin: 0 auto 15px auto; }}
@@ -552,18 +566,24 @@ if st.session_state.etapa == 2:
                 @page {{ margin: 0.8cm; size: A4 portrait; }}
                 body, html {{ background-color: white !important; margin: 0 !important; padding: 0 !important; }}
                 .barra-ferramentas {{ display: none !important; }}
+                .page-wrapper {{ 
+                    display: block !important; 
+                    width: 100% !important; 
+                    overflow: visible !important;
+                    height: auto !important;
+                }}
                 .folha-contrato {{ 
                     padding: 0 !important; margin: 0 !important; box-shadow: none !important; 
                     width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;
+                    transform: none !important;
+                    min-height: auto !important;
                 }}
 
-                /* ====== CORREÇÃO PRINCIPAL: elimina os vazios enormes ====== */
                 table {{ page-break-inside: auto !important; }}
                 tr, td, th {{ page-break-inside: avoid !important; }}
                 .tr-titulo {{ page-break-after: avoid !important; }}
                 .header-section {{ page-break-after: avoid !important; }}
                 .bloco-assinatura, .box-importante {{ page-break-inside: avoid !important; }}
-
                 .menu-cores td {{ pointer-events: none; }}
             }}
         </style>
@@ -573,111 +593,166 @@ if st.session_state.etapa == 2:
             <span class="dica"><b>Para PDF perfeito:</b><br>1. Em Definições, marque "Gráficos de plano de fundo".<br>2. Desmarque "Cabeçalhos e rodapés".</span>
             <button class="btn-imprimir" onclick="window.print()"> Imprimir / Salvar PDF</button>
         </div>
-        <div class="folha-contrato">
-            
-            {logo_html}
-            <h2 class="titulo-doc">CONTRATO DE PRESTAÇÃO DE SERVIÇOS<br><span style="font-size: 13px; font-weight: normal;">MODELO EM VISUAL LAW</span></h2>
-            <p class="subtitulo-doc">Serviços de limpeza e higienização de clínica de estética</p>
-            
-            <div class="header-section">QUEM ASSINA ESTE CONTRATO</div>
-            <table class="tab-assina">
-                <tr><th class="th-cli">CLÍNICA • CONTRATANTE</th><th class="th-emp">EMPRESA DE LIMPEZA • CONTRATADA</th></tr>
-                <tr>
-                    <td>
-                        <span style="font-size:8px; color:#666;">NOME</span><br><b>{st.session_state.nome_contratante}</b><br>
-                        <span style="font-size:8px; color:#666;">CNPJ / CPF</span>: <b>{st.session_state.cnpj_contratante}</b> | 
-                        <span style="font-size:8px; color:#666;">SEDE</span>: <b>{st.session_state.endereco_contratante}</b><br>
-                        <span style="font-size:8px; color:#666;">REPRESENTANTE</span>: <b>{st.session_state.repr_contratante}</b> (RG: {st.session_state.rg_repr_contratante} | CPF: {st.session_state.cpf_repr_contratante})
-                    </td>
-                    <td>
-                        <span style="font-size:8px; color:#666;">NOME</span><br><b>{st.session_state.nome_contratada}</b><br>
-                        <span style="font-size:8px; color:#666;">CNPJ</span>: <b>{st.session_state.cnpj_contratada}</b> | 
-                        <span style="font-size:8px; color:#666;">SEDE</span>: <b>{st.session_state.endereco_contratada}</b><br>
-                        <span style="font-size:8px; color:#666;">REPRESENTANTE</span>: <b>{st.session_state.repr_contratada}</b> (RG: {st.session_state.rg_repr_contratada} | CPF: {st.session_state.cpf_repr_contratada})
-                    </td>
-                </tr>
-            </table>
-            
-            <div class="header-section">O CONTRATO EM 1 MINUTO</div>
-            
-            {tabela_1_minuto_html}
-            
-            <div class="header-section">COMO LER ESTE CONTRATO</div>
-            
-            <table class="menu-cores" style="margin-bottom: 10px;">
-                <tr>
-                    <td style="background-color: {cores['objeto']};" onclick="document.getElementById('sec-objeto')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>OBJETO</b><br>o que será feito</td>
-                    <td style="background-color: {cores['autonomia']};" onclick="document.getElementById('sec-autonomia')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>AUTONOMIA</b><br>liberdade de trabalho</td>
-                    <td style="background-color: {cores['custos']};" onclick="document.getElementById('sec-custos')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>SEUS CUSTOS</b><br>o que você paga e traz</td>
-                    <td style="background-color: {cores['sigilo']};" onclick="document.getElementById('sec-sigilo')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>SIGILO</b><br>informações protegidas</td>
-                </tr>
-                <tr>
-                    <td style="background-color: {cores['saude']};" onclick="document.getElementById('sec-saude')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>SAÚDE</b><br>saúde e biossegurança</td>
-                    <td style="background-color: {cores['dinheiro']};" onclick="document.getElementById('sec-dinheiro')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>DINHEIRO</b><br>valores e pagamento</td>
-                    <td style="background-color: {cores['prazo']};" onclick="document.getElementById('sec-prazo')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>PRAZO</b><br>datas e duração</td>
-                    <td style="background-color: {cores['atencao']};" onclick="document.getElementById('sec-atencao')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>ATENÇÃO</b><br>leia com cuidado</td>
-                </tr>
-            </table>
-            
-            <table class="tab-clausulas" style="margin-bottom: 3px;">
-                <tr><th class="th-jur" style="width: 50%;">TEXTO DO CONTRATO</th><th class="th-jur" style="width: 50%;">EM PALAVRAS SIMPLES</th></tr>
-                <tr>
-                    <td>Coluna da esquerda. É o texto jurídico, que vale para todos os efeitos legais.</td>
-                    <td class="col-vis">Coluna da direita. Explica a mesma cláusula em linguagem do dia a dia.</td>
-                </tr>
-            </table>
-            
-            <div class="box-importante">
-                <span style="color: #df9d2d; font-weight: bold; font-size: 12px;">IMPORTANTE:</span> As explicações em palavras simples servem para ajudar a entender, <b>mas não substituem o texto do contrato.</b> Em caso de dúvida, vale o texto jurídico. <b>Pergunte antes de assinar.</b>
-            </div>
-            
-            {html_clausulas}
+        
+        <div class="page-wrapper">
+            <div class="folha-contrato">
+                
+                {logo_html}
+                <h2 class="titulo-doc">CONTRATO DE PRESTAÇÃO DE SERVIÇOS<br><span style="font-size: 13px; font-weight: normal;">MODELO EM VISUAL LAW</span></h2>
+                <p class="subtitulo-doc">Serviços de limpeza e higienização de clínica de estética</p>
+                
+                <div class="header-section">QUEM ASSINA ESTE CONTRATO</div>
+                <table class="tab-assina">
+                    <tr><th class="th-cli">CLÍNICA • CONTRATANTE</th><th class="th-emp">EMPRESA DE LIMPEZA • CONTRATADA</th></tr>
+                    <tr>
+                        <td>
+                            <span style="font-size:8px; color:#666;">NOME</span><br><b>{st.session_state.nome_contratante}</b><br>
+                            <span style="font-size:8px; color:#666;">CNPJ / CPF</span>: <b>{st.session_state.cnpj_contratante}</b> | 
+                            <span style="font-size:8px; color:#666;">SEDE</span>: <b>{st.session_state.endereco_contratante}</b><br>
+                            <span style="font-size:8px; color:#666;">REPRESENTANTE</span>: <b>{st.session_state.repr_contratante}</b> (RG: {st.session_state.rg_repr_contratante} | CPF: {st.session_state.cpf_repr_contratante})
+                        </td>
+                        <td>
+                            <span style="font-size:8px; color:#666;">NOME</span><br><b>{st.session_state.nome_contratada}</b><br>
+                            <span style="font-size:8px; color:#666;">CNPJ</span>: <b>{st.session_state.cnpj_contratada}</b> | 
+                            <span style="font-size:8px; color:#666;">SEDE</span>: <b>{st.session_state.endereco_contratada}</b><br>
+                            <span style="font-size:8px; color:#666;">REPRESENTANTE</span>: <b>{st.session_state.repr_contratada}</b> (RG: {st.session_state.rg_repr_contratada} | CPF: {st.session_state.cpf_repr_contratada})
+                        </td>
+                    </tr>
+                </table>
+                
+                <div class="header-section">O CONTRATO EM 1 MINUTO</div>
+                
+                {tabela_1_minuto_html}
+                
+                <div class="header-section">COMO LER ESTE CONTRATO</div>
+                
+                <table class="menu-cores" style="margin-bottom: 10px;">
+                    <tr>
+                        <td style="background-color: {cores['objeto']};" onclick="document.getElementById('sec-objeto')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>OBJETO</b><br>o que será feito</td>
+                        <td style="background-color: {cores['autonomia']};" onclick="document.getElementById('sec-autonomia')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>AUTONOMIA</b><br>liberdade de trabalho</td>
+                        <td style="background-color: {cores['custos']};" onclick="document.getElementById('sec-custos')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>SEUS CUSTOS</b><br>o que você paga e traz</td>
+                        <td style="background-color: {cores['sigilo']};" onclick="document.getElementById('sec-sigilo')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>SIGILO</b><br>informações protegidas</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: {cores['saude']};" onclick="document.getElementById('sec-saude')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>SAÚDE</b><br>saúde e biossegurança</td>
+                        <td style="background-color: {cores['dinheiro']};" onclick="document.getElementById('sec-dinheiro')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>DINHEIRO</b><br>valores e pagamento</td>
+                        <td style="background-color: {cores['prazo']};" onclick="document.getElementById('sec-prazo')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>PRAZO</b><br>datas e duração</td>
+                        <td style="background-color: {cores['atencao']};" onclick="document.getElementById('sec-atencao')?.scrollIntoView({{behavior: 'smooth', block: 'start'}})"><b>ATENÇÃO</b><br>leia com cuidado</td>
+                    </tr>
+                </table>
+                
+                <table class="tab-clausulas" style="margin-bottom: 3px;">
+                    <tr><th class="th-jur" style="width: 50%;">TEXTO DO CONTRATO</th><th class="th-jur" style="width: 50%;">EM PALAVRAS SIMPLES</th></tr>
+                    <tr>
+                        <td>Coluna da esquerda. É o texto jurídico, que vale para todos os efeitos legais.</td>
+                        <td class="col-vis">Coluna da direita. Explica a mesma cláusula em linguagem do dia a dia.</td>
+                    </tr>
+                </table>
+                
+                <div class="box-importante">
+                    <span style="color: #df9d2d; font-weight: bold; font-size: 12px;">IMPORTANTE:</span> As explicações em palavras simples servem para ajudar a entender, <b>mas não substituem o texto do contrato.</b> Em caso de dúvida, vale o texto jurídico. <b>Pergunte antes de assinar.</b>
+                </div>
+                
+                {html_clausulas}
 
-            {foro_html}
-            
-            <div class="header-section">CHECKLIST DE COMPREENSÃO</div>
-            <p style="margin: 5px 0 8px 0;">Antes de assinar, marque cada item que você entendeu e coloque sua rubrica.</p>
-            <ul style="list-style-type: none; padding-left: 0; line-height: 1.6; margin: 0 0 15px 0;">
-                {check_html}
-            </ul>
-            
-            <p style="margin-top: 15px; margin-bottom: 15px;">E, por estarem justos e contratados, assinam o presente CONTRATO DE PRESTAÇÃO DE SERVIÇOS.</p>
-            <p style="text-align: center; margin-bottom: 30px;">{st.session_state.foro_cidade.split('/')[0] if st.session_state.foro_cidade else "Local"}, {st.session_state.data_formatada}.</p>
-            
-            <table class="tab-assinaturas">
-                <tr>
-                    <td class="bloco-assinatura">
-                        <div class="linha-assina"></div>
-                        <b>{st.session_state.nome_contratante}</b><br>
-                        Repr. {st.session_state.repr_contratante}<br>
-                        (CONTRATANTE)
-                    </td>
-                    <td class="bloco-assinatura">
-                        <div class="linha-assina"></div>
-                        <b>{st.session_state.nome_contratada}</b><br>
-                        Repr. {st.session_state.repr_contratada}<br>
-                        (CONTRATADA)
-                    </td>
-                </tr>
-            </table>
-            
-            <p style="text-align: center; margin-top: 25px; margin-bottom: 25px; font-weight: bold; font-size: 12px;">TESTEMUNHAS</p>
-            
-            <table class="tab-assinaturas">
-                <tr>
-                    <td class="bloco-assinatura">
-                        <div class="linha-assina"></div>
-                        CPF: ______________________<br>
-                        RG: _______________________
-                    </td>
-                    <td class="bloco-assinatura">
-                        <div class="linha-assina"></div>
-                        CPF: ______________________<br>
-                        RG: _______________________
-                    </td>
-                </tr>
-            </table>
+                {foro_html}
+                
+                <div class="header-section">CHECKLIST DE COMPREENSÃO</div>
+                <p style="margin: 5px 0 8px 0;">Antes de assinar, marque cada item que você entendeu e coloque sua rubrica.</p>
+                <ul style="list-style-type: none; padding-left: 0; line-height: 1.6; margin: 0 0 15px 0;">
+                    {check_html}
+                </ul>
+                
+                <p style="margin-top: 15px; margin-bottom: 15px;">E, por estarem justos e contratados, assinam o presente CONTRATO DE PRESTAÇÃO DE SERVIÇOS.</p>
+                <p style="text-align: center; margin-bottom: 30px;">{st.session_state.foro_cidade.split('/')[0] if st.session_state.foro_cidade else "Local"}, {st.session_state.data_formatada}.</p>
+                
+                <table class="tab-assinaturas">
+                    <tr>
+                        <td class="bloco-assinatura">
+                            <div class="linha-assina"></div>
+                            <b>{st.session_state.nome_contratante}</b><br>
+                            Repr. {st.session_state.repr_contratante}<br>
+                            (CONTRATANTE)
+                        </td>
+                        <td class="bloco-assinatura">
+                            <div class="linha-assina"></div>
+                            <b>{st.session_state.nome_contratada}</b><br>
+                            Repr. {st.session_state.repr_contratada}<br>
+                            (CONTRATADA)
+                        </td>
+                    </tr>
+                </table>
+                
+                <p style="text-align: center; margin-top: 25px; margin-bottom: 25px; font-weight: bold; font-size: 12px;">TESTEMUNHAS</p>
+                
+                <table class="tab-assinaturas">
+                    <tr>
+                        <td class="bloco-assinatura">
+                            <div class="linha-assina"></div>
+                            CPF: ______________________<br>
+                            RG: _______________________
+                        </td>
+                        <td class="bloco-assinatura">
+                            <div class="linha-assina"></div>
+                            CPF: ______________________<br>
+                            RG: _______________________
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
+
+        <script>
+            function adjustLayout() {{
+                const folha = document.querySelector('.folha-contrato');
+                const wrapper = document.querySelector('.page-wrapper');
+                const toolbar = document.querySelector('.barra-ferramentas');
+                
+                if (!folha || !wrapper) return;
+
+                const viewportWidth = window.innerWidth;
+                const a4Width = 794;
+                
+                let scale = 1;
+                if (viewportWidth < a4Width) {{
+                    scale = viewportWidth / a4Width;
+                }}
+
+                // Reseta o transform para medir a altura real
+                folha.style.transform = 'none';
+                const unscaledHeight = folha.scrollHeight;
+                
+                if (scale < 1) {{
+                    folha.style.transform = `scale(${{scale}})`;
+                    folha.style.transformOrigin = 'top left';
+                    
+                    const scaledHeight = unscaledHeight * scale;
+                    wrapper.style.height = scaledHeight + 'px';
+                    wrapper.style.width = '100%';
+                    wrapper.style.overflow = 'hidden';
+                    wrapper.style.justifyContent = 'flex-start';
+                }} else {{
+                    folha.style.transform = 'none';
+                    wrapper.style.height = 'auto';
+                    wrapper.style.width = '100%';
+                    wrapper.style.overflow = 'visible';
+                    wrapper.style.justifyContent = 'center';
+                }}
+
+                // Ajusta a altura do iframe para caber o conteúdo
+                setTimeout(() => {{
+                    const totalHeight = wrapper.offsetHeight + (toolbar ? toolbar.offsetHeight + 40 : 60);
+                    if (window.frameElement) {{
+                        window.frameElement.style.height = totalHeight + 'px';
+                    }}
+                }}, 50);
+            }}
+
+            window.addEventListener('resize', adjustLayout);
+            window.addEventListener('load', adjustLayout);
+            setTimeout(adjustLayout, 100);
+            setTimeout(adjustLayout, 500);
+        </script>
     </body>
     </html>
     """
